@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>阿柒选品助手</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #e6f7ff, #f0f9eb);
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            position: relative;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #1890ff, #096dd9);
+            color: white;
+            padding: 25px;
+            text-align: center;
+            position: relative;
+        }
+        
+        header h1 {
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+            letter-spacing: 1px;
+        }
+        
+        header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        
+        .logo-corner {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 24px;
+        }
+        
+        .page {
+            padding: 30px;
+            display: none;
+        }
+        
+        .page.active {
+            display: block;
+        }
+        
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            padding: 20px 30px;
+            background-color: #f0f4f8;
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            font-size: 16px;
+            display: inline-flex;
+            align-items: center;
+        }
+        
+        .btn i {
+            margin-right: 8px;
+            font-size: 18px;
+        }
+        
+        .btn-next {
+            background: linear-gradient(to right, #52c41a, #1890ff);
+            color: white;
+            box-shadow: 0 4px 10px rgba(24, 144, 255, 0.3);
+        }
+        
+        .btn-prev {
+            background-color: #bfbfbf;
+            color: white;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(to right, #1890ff, #096dd9);
+            color: white;
+            display: block;
+            width: 100%;
+            padding: 14px;
+            font-size: 17px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(24, 144, 255, 0.3);
+        }
+        
+        .btn-primary:hover, .btn-next:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(24, 144, 255, 0.4);
+        }
+        
+        .btn-prev:hover {
+            background-color: #8c8c8c;
+        }
+        
+        .method-container {
+            margin-top: 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+        }
+        
+        .method-box {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e8e8e8;
+            transition: all 0.3s ease;
+        }
+        
+        .method-box:hover {
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            border-color: #1890ff;
+        }
+        
+        .method-title {
+            font-size: 1.5rem;
+            color: #096dd9;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #e6f7ff;
+            position: relative;
+        }
+        
+        .method-title:after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 50px;
+            height: 2px;
+            background: #1890ff;
+        }
+        
+        .method-steps {
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .method-steps ol {
+            padding-left: 20px;
+        }
+        
+        .method-steps li {
+            margin-bottom: 12px;
+            padding-left: 8px;
+        }
+        
+        .requirements {
+            padding: 15px;
+            background: #f6ffed;
+            border-radius: 8px;
+            border-left: 4px solid #52c41a;
+        }
+        
+        .requirements h3 {
+            margin-bottom: 15px;
+            color: #096dd9;
+            font-size: 1.2rem;
+        }
+        
+        .requirements ul {
+            padding-left: 22px;
+        }
+        
+        .requirements li {
+            margin-bottom: 10px;
+            line-height: 1.6;
+        }
+        
+        .form-container {
+            margin-top: 20px;
+        }
+        
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #262626;
+            font-size: 16px;
+        }
+        
+        label span {
+            color: #ff4d4f;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 14px 15px;
+            border: 1px solid #d9d9d9;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s;
+            background: #fafafa;
+        }
+        
+        input:focus, select:focus {
+            outline: none;
+            border-color: #40a9ff;
+            box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+            background: #fff;
+        }
+        
+        input::placeholder {
+            color: #bfbfbf;
+        }
+        
+        .info-box {
+            background: #e6fffb;
+            border-left: 4px solid #13c2c2;
+            padding: 18px;
+            margin: 25px 0;
+            border-radius: 0 8px 8px 0;
+            font-size: 16px;
+        }
+        
+        .copy-container {
+            background-color: #fffbe6;
+            padding: 25px;
+            border-radius: 10px;
+            border-left: 4px solid #faad14;
+            margin-top: 30px;
+            border: 1px solid #ffe58f;
+        }
+        
+        .copy-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+        
+        .copied-message {
+            color: #52c41a;
+            font-weight: bold;
+            font-size: 16px;
+            display: none;
+        }
+        
+        .copy-header h3 {
+            color: #262626;
+            font-size: 1.3rem;
+        }
+        
+        #dataOutput {
+            width: 100%;
+            height: 120px;
+            padding: 15px;
+            border: 1px solid #ffd666;
+            border-radius: 8px;
+            resize: none;
+            font-size: 16px;
+            background: #fffefa;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: #595959;
+            font-size: 0.95rem;
+            background: #fafafa;
+            border-top: 1px solid #f0f0f0;
+        }
+        
+        @media (max-width: 768px) {
+            .method-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            header h1 {
+                font-size: 1.8rem;
+            }
+            
+            .method-title {
+                font-size: 1.3rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .page {
+                padding: 20px 15px;
+            }
+            
+            header {
+                padding: 20px 15px;
+            }
+            
+            header h1 {
+                font-size: 1.5rem;
+            }
+            
+            .btn {
+                padding: 10px 15px;
+                font-size: 14px;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo-corner">柒</div>
+            <h1>阿柒选品助手</h1>
+            <p>轻松选品，快乐赚钱</p>
+        </header>
+        
+        <!-- 第一页 - 选品要求 -->
+        <div id="page1" class="page active">
+            <div class="info-box">
+                <p><i class="fas fa-info-circle"></i> 请仔细阅读以下选品方法和要求，确保您的产品符合选品标准后再进行数据填写。</p>
+            </div>
+            
+            <h2 style="color: #096dd9; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 2px solid #e6f7ff;">选品方法与要求</h2>
+            
+            <div class="method-container">
+                <div class="method-box">
+                    <h3 class="method-title"><i class="fas fa-key"></i> 方法一：词根选品</h3>
+                    <div class="method-steps">
+                        <ol>
+                            <li><strong>淘宝输入"二级词根"</strong>点击搜索</li>
+                            <li>筛选条件：<strong>点淘宝</strong>、<strong>区间4-50</strong>、选择<strong>销量排序/综合排序</strong></li>
+                            <li>点进去看产品是否符合：<strong>价格5-30</strong>，点销量之后的<strong>月付款人50-500+</strong></li>
+                            <li>利用核心词去判断5点蓝海选品要求以及乱价</li>
+                            <li>核心词：参考主图明显的几个大字去结合标题去找（<strong>字数7-10个以内</strong>)</li>
+                        </ol>
+                    </div>
+                    
+                    <div class="requirements">
+                        <h3><i class="fas fa-check-circle"></i> 判断是否符合要求：</h3>
+                        <ul>
+                            <li><strong>核心关键词</strong> 1-10页 - 越少越好（点销量排序）</li>
+                            <li><strong>核心词第一的付款人</strong> 50~500+</li>
+                            <li><strong>核心词第一价格</strong>在5-30之间</li>
+                            <li><strong>核心词第十个产品</strong>付款人低于20</li>
+                            <li><strong>全标题</strong>5-15个同行在做这个产品（点销量排序）</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="method-box">
+                    <h3 class="method-title"><i class="fas fa-store"></i> 方法二：进店选品</h3>
+                    <div class="method-steps">
+                        <ol>
+                            <li><strong>进店之后点销量排序</strong></li>
+                            <li>先看产品<strong>价格5-30</strong>，点销量之后的<strong>付款人50-500+</strong></li>
+                            <li>如果符合直接查</li>
+                        </ol>
+                    </div>
+                    
+                    <div class="requirements">
+                        <h3><i class="fas fa-check-circle"></i> 选品检查要求：</h3>
+                        <ul>
+                            <li><strong>全标题</strong>5-15个同行在做这个产品（点销量排序）</li>
+                            <li><strong>核心关键词</strong>1-10页 - 越少越好（点销量排序）</li>
+                            <li><strong>核心词第一的月销量</strong>50~500+</li>
+                            <li><strong>核心词第一价格</strong>在5-30之间</li>
+                            <li><strong>核心词20人付款</strong>能否排进前十</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="nav-buttons">
+                <div></div>
+                <button id="toPage2" class="btn btn-next"><i class="fas fa-arrow-right"></i> 开始填写数据</button>
+            </div>
+        </div>
+        
+        <!-- 第二页 - 数据填写 -->
+        <div id="page2" class="page">
+            <div class="info-box">
+                <p><i class="fas fa-info-circle"></i> 请填写以下所有数据，确认无误后点击页面底部的"复制数据"按钮，然后粘贴到您的表格中。</p>
+            </div>
+            
+            <h2 style="color: #096dd9; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 2px solid #e6f7ff;">选品数据填写</h2>
+            
+            <div class="form-container">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="fullTitle">全标题5-15个同行</label>
+                        <input type="text" id="fullTitle" placeholder="例如：10">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="coreKeyword">核心关键词</label>
+                        <input type="text" id="coreKeyword" placeholder="例如：AI工具教程">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="monthlySales">核心词月销量50-500+</label>
+                        <input type="text" id="monthlySales" placeholder="例如：200+">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="firstPrice">核心词第一价格（不低于5）</label>
+                        <input type="text" id="firstPrice" placeholder="例如：9.9">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="pages">核心词1-10页数量</label>
+                        <input type="text" id="pages" placeholder="例如：2">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="top10">销量20能够进前十</label>
+                        <input type="text" id="top10" placeholder="例如：3">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="deposit">保证金</label>
+                        <input type="text" id="deposit" placeholder="例如：1000">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="reviewDate">评论日期</label>
+                        <input type="text" id="reviewDate" placeholder="例如：一天内（不超过3个月）">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="trademark">商标</label>
+                        <input type="text" id="trademark" value="无" readonly>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="copyright">著作权</label>
+                        <input type="text" id="copyright" value="无" readonly>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="specialRights">肖像权、特殊标志</label>
+                        <input type="text" id="specialRights" value="无" readonly>
+                    </div>
+                </div>
+                
+                <div class="copy-container">
+                    <div class="copy-header">
+                        <h3><i class="fas fa-clipboard-list"></i> 数据生成区</h3>
+                        <div class="copied-message" id="copiedMessage">
+                            <i class="fas fa-check-circle"></i> 数据已复制到剪贴板！
+                        </div>
+                    </div>
+                    <textarea id="dataOutput" readonly></textarea>
+                    <button id="copyData" class="btn btn-primary">
+                        <i class="fas fa-copy"></i> 复制数据到剪贴板
+                    </button>
+                </div>
+            </div>
+            
+            <div class="nav-buttons">
+                <button id="toPage1" class="btn btn-prev"><i class="fas fa-arrow-left"></i> 返回选品要求</button>
+                <div></div>
+            </div>
+        </div>
+        
+        <footer>
+            <p>© 2025 阿柒选品助手 | 淘虚选品工具</p>
+        </footer>
+    </div>
+    
+    <script>
+        // 页面切换逻辑
+        document.getElementById('toPage2').addEventListener('click', function() {
+            document.getElementById('page1').classList.remove('active');
+            document.getElementById('page2').classList.add('active');
+        });
+        
+        document.getElementById('toPage1').addEventListener('click', function() {
+            document.getElementById('page2').classList.remove('active');
+            document.getElementById('page1').classList.add('active');
+        });
+        
+        // 表单字段监听
+        const inputs = document.querySelectorAll('input, select');
+        inputs.forEach(input => {
+            input.addEventListener('input', updateDataOutput);
+        });
+        
+        // 更新输出数据 - 仅包含值，制表符分隔
+        function updateDataOutput() {
+            const data = [
+                document.getElementById('fullTitle').value || '',
+                document.getElementById('coreKeyword').value || '',
+                document.getElementById('monthlySales').value || '',
+                document.getElementById('firstPrice').value || '',
+                document.getElementById('pages').value || '',
+                document.getElementById('top10').value || '',
+                document.getElementById('deposit').value || '',
+                document.getElementById('reviewDate').value || '',
+                document.getElementById('trademark').value,
+                document.getElementById('copyright').value,
+                document.getElementById('specialRights').value
+            ];
+            
+            // 生成制表符分隔的文本（用于粘贴到表格）
+            const tabSeparated = data.join('\t');
+            document.getElementById('dataOutput').value = tabSeparated;
+        }
+        
+        // 修复复制功能
+        document.getElementById('copyData').addEventListener('click', function() {
+            const output = document.getElementById('dataOutput');
+            output.select();
+            
+            navigator.clipboard.writeText(output.value).then(() => {
+                const message = document.getElementById('copiedMessage');
+                message.style.display = 'block';
+                
+                // 3秒后隐藏提示
+                setTimeout(() => {
+                    message.style.display = 'none';
+                }, 3000);
+                
+                // 添加按钮动画
+                const button = document.getElementById('copyData');
+                button.innerHTML = '<i class="fas fa-check"></i> 复制成功！';
+                button.style.background = 'linear-gradient(to right, #52c41a, #389e0d)';
+                
+                setTimeout(() => {
+                    button.innerHTML = '<i class="fas fa-copy"></i> 复制数据到剪贴板';
+                    button.style.background = 'linear-gradient(to right, #1890ff, #096dd9)';
+                }, 2000);
+            }).catch(err => {
+                console.error('复制失败:', err);
+                alert('复制失败，请手动选择并复制文本');
+            });
+        });
+        
+        // 初始化输出
+        updateDataOutput();
+    </script>
+</body>
+</html>
